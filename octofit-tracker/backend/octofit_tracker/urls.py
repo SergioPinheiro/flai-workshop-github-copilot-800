@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from octofit_tracker.views import (
@@ -31,12 +32,18 @@ class APIRoot(APIView):
     """API root view that lists all available endpoints."""
     
     def get(self, request):
+        codespace = os.environ.get('CODESPACE_NAME')
+        if codespace:
+            base = f"https://{codespace}-8000.app.github.dev"
+        else:
+            base = request.build_absolute_uri('/').rstrip('/')
+
         return Response({
-            'teams': request.build_absolute_uri('/api/teams/'),
-            'users': request.build_absolute_uri('/api/users/'),
-            'activities': request.build_absolute_uri('/api/activities/'),
-            'leaderboard': request.build_absolute_uri('/api/leaderboard/'),
-            'workouts': request.build_absolute_uri('/api/workouts/'),
+            'teams': f"{base}/api/teams/",
+            'users': f"{base}/api/users/",
+            'activities': f"{base}/api/activities/",
+            'leaderboard': f"{base}/api/leaderboard/",
+            'workouts': f"{base}/api/workouts/",
         }, status=200)
 
 
